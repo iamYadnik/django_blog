@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Create New Post{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1 class="mb-4">Create New Post</h1>
+            
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Title Field -->
+                <div class="form-group mb-3">
+                    <label for="id_title" class="form-label">Post Title</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <small class="text-danger d-block mt-2">
+                            {{ form.title.errors }}
+                        </small>
+                    {% endif %}
+                </div>
+                
+                <!-- Content Field -->
+                <div class="form-group mb-3">
+                    <label for="id_content" class="form-label">Post Content</label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                        <small class="text-danger d-block mt-2">
+                            {{ form.content.errors }}
+                        </small>
+                    {% endif %}
+                </div>
+                
+                <!-- Image Field -->
+                <div class="form-group mb-3">
+                    <label for="id_image" class="form-label">Featured Image</label>
+                    {{ form.image }}
+                    {% if form.image.errors %}
+                        <small class="text-danger d-block mt-2">
+                            {{ form.image.errors }}
+                        </small>
+                    {% endif %}
+                </div>
+                
+                <!-- Tags Field -->
+                <div class="form-group mb-3">
+                    <label class="form-label">Tags</label>
+                    <div class="border p-3 rounded">
+                        {{ form.tags }}
+                    </div>
+                    {% if form.tags.errors %}
+                        <small class="text-danger d-block mt-2">
+                            {{ form.tags.errors }}
+                        </small>
+                    {% endif %}
+                </div>
+                
+                <!-- Featured Checkbox -->
+                <div class="form-check mb-3">
+                    {{ form.is_featured }}
+                    <label for="id_is_featured" class="form-check-label">
+                        Mark as Featured Post
+                    </label>
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">
+                    Create Post
+                </button>
+                <a href="{% url 'home' %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

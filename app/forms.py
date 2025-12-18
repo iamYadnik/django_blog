@@ -1,9 +1,49 @@
 
 from django import forms
-from .models import Comments, Subscriber
+from .models import Comments, Subscriber, Post, Tag
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+
+
+
+class PostForm(forms.ModelForm):
+    """
+    Form for creating/editing blog posts
+    Handles title, content, image, tags, and is_featured
+    """
+    
+    # Override tags field to allow multiple selections
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        help_text="Select tags for this post (optional)"
+    )
+    
+    class Meta:
+        model = Post
+        fields = ['title', 'content', 'image', 'tags', 'is_featured']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter post title',
+                'required': True,
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Write your post content here...',
+                'rows': 10,
+            }),
+            'image': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*',
+            }),
+            'is_featured': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+            }),
+        }
 
 
 class NewUserForm(UserCreationForm):

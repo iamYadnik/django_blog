@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .models import Post, Comments, Tag, Profile, WebsiteMeta
-from .forms import Commentforms, SubscriberForm, NewUserForm
+from .forms import Commentforms, SubscriberForm, NewUserForm, PostForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.db import IntegrityError
@@ -8,12 +8,64 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.shortcuts import redirect, get_object_or_404
 from django.db.models import Count
+from django.contrib.auth.decorators import login_required
+from django.utils.text import slugify
+
 
 def liked_post(request):
     posts = Post.objects.filter(likes__in=[request.user.id])
     context = {'posts': posts}
     return render(request, 'app/liked_post.html', context)
 
+
+@login_required
+def create_post(request):
+    """
+    Create a new blog post with auto-generated slug.
+    - Requires user to be logged in
+    - Auto-generates slug from title
+    - Handles duplicate slugs
+    - Associates tags with the post
+    """
+    
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        
+        if form.is_valid():
+            # Save the post without committing to DB yet
+            post = form.save(commit=False)
+            
+            # Set the author to current user
+            post.author = request.user
+            
+            # Generate slug from title
+            base_slug = slugify(form.cleaned_data['title'])
+            slug = base_slug
+            counter = 1
+            
+            # Check if slug already exists, if yes, append number
+            while Post.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            
+            post.slug = slug
+            
+            # Save the post to database
+            post.save()
+            
+            # Save tags (many-to-many relationship)
+            # The form should handle this, but if it doesn't:
+            form.save_m2m()  # Save many-to-many relationships
+            
+            # Redirect to the newly created post
+            return redirect('post_page', slug=post.slug)
+    
+    else:
+        # GET request - show empty form
+        form = PostForm()
+    
+    context = {'form': form}
+    return render(request, 'app/create_post.html', context)
 
 def all_post(request):
     posts = Post.objects.all()

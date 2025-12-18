@@ -50,6 +50,11 @@
           {% else %}
             <a href="{% url "login" %}">Bookmarks</a>
           {% endif %}
+          {% if user.is_authenticated %}
+            <a href="{% url "create_post" %}">Create Post</a>
+          {% else %}
+            <a href="{% url "login" %}">Create Post</a>
+          {% endif %}
         </div>
         <div class="action-btn">
           {% if user.is_authenticated %}

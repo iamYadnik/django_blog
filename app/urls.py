@@ -16,6 +16,7 @@ urlpatterns = [
     path('all_bookmarked_post/', views.all_bookmarked_post, name='all_bookmarked_post'),
     path('all_post/', views.all_post, name='all_post'),
     path('your_post/', views.your_post, name='your_post'),
-    path('liked_post/', views.liked_post, name='liked_post')
+    path('liked_post/', views.liked_post, name='liked_post'),
+    path('create_post/', views.create_post, name='create_post')
 ]
 
