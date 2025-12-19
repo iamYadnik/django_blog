@@ -52,11 +52,7 @@
                         </h3>
                         <div class="author">
                           <div class="profile-pic">
-                            {% if post.author.profile.avatar %}
-                              <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.first_name }}" />
-                            {% else %}
-                              <img src="{% static 'default-avatar.png' %}" alt="{{ post.author.first_name }}" />
-                            {% endif %}
+                            <img src="{{post.author.profile.avatar.url}}" alt="" />
                           </div>
                           <div class="details">
                             <p>{{ post.author.first_name }}</p>
@@ -97,11 +93,7 @@
                         </h3>
                         <div class="author">
                           <div class="profile-pic">
-                              {% if post.author.profile.avatar %}
-                                <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.first_name }}" />
-                              {% else %}
-                                < img src="{% static 'default-avatar.png' %}" alt="{{ post.author.first_name }}" />
-                              {% endif %}
+                            <img src="{{post.author.profile.avatar.url}}" alt="" />
                           </div>
                           <div class="details">
                             <p>{{ post.author.first_name }}</p>
