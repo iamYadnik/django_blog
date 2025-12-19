@@ -96,11 +96,12 @@ class SubscriberForm(forms.ModelForm):  # ← Use ModelForm!
 class Commentforms(forms.ModelForm):
     class Meta:
         model = Comments
-        fields = ['name', 'email', 'website', 'content']
-
+        fields = ['content']  # ✅ Only content field!
+    
     def __init__(self, *args, **kwargs):
         super(Commentforms, self).__init__(*args, **kwargs)
-        self.fields['name'].widget.attrs.update({'placeholder': 'Name', 'class': 'form-control'})
-        self.fields['email'].widget.attrs.update({'placeholder': 'Email', 'class': 'form-control'})
-        self.fields['website'].widget.attrs.update({'placeholder': 'Website (optional)', 'class': 'form-control'})
-        self.fields['content'].widget.attrs.update({'placeholder': 'Type your comment....', 'class': 'form-control', 'rows': 5})
+        self.fields['content'].widget.attrs.update({
+            'placeholder': 'Type your comment....',
+            'class': 'form-control',
+            'rows': 3
+        })

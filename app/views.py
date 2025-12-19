@@ -168,6 +168,7 @@ def post_page(request, slug):
     post = Post.objects.get(slug=slug)
     comments = Comments.objects.filter(post=post, parent=None)
 
+
     form = Commentforms()
     #like check
     is_liked = False
@@ -188,31 +189,35 @@ def post_page(request, slug):
 
 
     if request.POST:
+        if not request.user.is_authenticated:  # ✅ NEW
+            return redirect('account_login')
+    
         comment_form = Commentforms(request.POST)
         if comment_form.is_valid():
             parent_obj = None
+        
             if request.POST.get('parent'):
-                # save the reply
                 parent = request.POST.get('parent')
                 parent_obj = Comments.objects.get(id=parent)
-                if parent_obj:
-                    comment_reply = comment_form.save(commit=False)
-                    comment_reply.parent = parent_obj
-                    comment_reply.post = post
-                    comment_reply.author = request.user
-                    comment_reply.save()
-                    return HttpResponseRedirect(reverse('post_page', args=[slug]))
+        
+            if parent_obj:
+                comment_reply = comment_form.save(commit=False)
+                comment_reply.parent = parent_obj
+                comment_reply.post = post
+                comment_reply.author = request.user
+                comment_reply.name = request.user.first_name or request.user.username  # ✅ AUTO-FILL
+                comment_reply.email = request.user.email  # ✅ AUTO-FILL
+                comment_reply.save()
             else:
                 comment = comment_form.save(commit=False)
-                post = Post.objects.get(id=request.POST.get('post_id'))
-                
-                
                 comment.post = post
-                comment.author = request.user  
-                
-                
+                comment.author = request.user
+                comment.name = request.user.first_name or request.user.username  # ✅ AUTO-FILL
+                comment.email = request.user.email  # ✅ AUTO-FILL
                 comment.save()
+        
             return HttpResponseRedirect(reverse('post_page', args=[slug]))
+
             
     if post.view_count == 0:  
         post.view_count = 1
