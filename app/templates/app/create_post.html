@@ -72,6 +72,40 @@
                 <a href="{% url 'home' %}" class="btn btn-secondary">
                     Cancel
                 </a>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const contentTypeSelect = document.getElementById('id_content_type');
+                        const contentGenreSelect = document.getElementById('id_content_genre');
+                        
+                        function updateGenres() {
+                            const contentTypeId = contentTypeSelect.value;
+                            
+                            if (contentTypeId) {
+                                // Fetch genres for this content type via AJAX
+                                fetch(`/api/genres/?content_type=${contentTypeId}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        // Clear existing options except placeholder
+                                        contentGenreSelect.innerHTML = '<option value="">Select a genre...</option>';
+                                        
+                                        // Add new options
+                                        data.genres.forEach(genre => {
+                                            const option = document.createElement('option');
+                                            option.value = genre.id;
+                                            option.textContent = genre.name;
+                                            contentGenreSelect.appendChild(option);
+                                        });
+                                    })
+                                    .catch(error => console.error('Error:', error));
+                            } else {
+                                // Clear genres if no content type selected
+                                contentGenreSelect.innerHTML = '<option value="">Select a content type first</option>';
+                            }
+                        }
+                        
+                        contentTypeSelect.addEventListener('change', updateGenres);
+                    });
+                </script>
             </form>
         </div>
     </div>

@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .models import Post, Comments, Tag, Profile, WebsiteMeta
-from .forms import Commentforms, SubscriberForm, NewUserForm, PostForm
+from .models import Post, Comments, Tag, Profile, WebsiteMeta, Subscriber, ContentGenre, ContentType, SteamGame
+from .forms import Commentforms, SubscriberForm, NewUserForm, PostForm, SteamIDForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.db import IntegrityError
@@ -11,11 +11,212 @@ from django.db.models import Count
 from django.contrib.auth.decorators import login_required
 from django.utils.text import slugify
 
+from django.contrib import messages
+from django.utils import timezone
+
+import requests
+import os
+from django.http import JsonResponse
+from dotenv import load_dotenv
+
+load_dotenv()
+ 
 
 def liked_post(request):
     posts = Post.objects.filter(likes__in=[request.user.id])
     context = {'posts': posts}
     return render(request, 'app/liked_post.html', context)
+
+STEAM_API_KEY = os.getenv('STEAM_API_KEY', 'put-steam-api-key-here')
+STEAM_API_URL = "http://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/"
+
+
+
+def get_genres_by_content_type(request):
+    """
+    API endpoint to get genres for a specific content type
+    Used for dynamic dropdown loading
+    """
+    content_type_id = request.GET.get('content_type')
+    
+    if not content_type_id:
+        return JsonResponse({'genres': []})
+    
+    genres = ContentGenre.objects.filter(
+        content_type_id=content_type_id
+    ).values('id', 'name').order_by('name')
+    
+    return JsonResponse({
+        'genres': list(genres)
+    })
+
+@login_required(login_url='account_login')
+def my_profile(request):
+    """User's profile page with tabs"""
+    user = request.user
+    bookmarked_posts = Post.objects.filter(bookmarks=request.user)
+    bookmarked_posts_count = bookmarked_posts.count()
+    liked_posts = Post.objects.filter(likes=request.user)
+    liked_posts_count = liked_posts.count()
+
+
+    context = {
+        'user': user,
+        'liked_posts_count': liked_posts_count,
+        'bookmarked_posts_count': bookmarked_posts_count
+    }
+    return render(request, 'app/my_profile.html', context)
+
+
+@login_required(login_url='account_login')
+def recently_played(request):
+    """Display recently played Steam games"""
+    user = request.user
+    
+    # Get user's Steam ID from profile
+    steam_id = user.profile.steam_id if hasattr(user, 'profile') else None
+    
+    # Get recently played games from database
+    recently_played_games = None
+    if steam_id:
+        recently_played_games = SteamGame.objects.filter(user=user).order_by('-playtime_2weeks')
+    
+    context = {
+        'steam_id': steam_id,
+        'recently_played_games': recently_played_games,
+        'last_sync_time': user.profile.last_sync_time if hasattr(user, 'profile') else None,
+    }
+    
+    return render(request, 'app/recently_played.html', context)
+
+@login_required
+def content_sync(request):
+    """
+    Display content sync page with Steam integration
+    Ensure user has profile
+    """
+    # Auto-create profile if it doesn't exist
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    
+    context = {
+        'profile': profile,
+    }
+    return render(request, 'app/content_sync.html', context)
+
+
+def fetch_steam_games(steam_id):
+    """
+    Fetch games from Steam API with detailed error handling
+    """
+    STEAM_API_KEY = os.getenv('STEAM_API_KEY')
+    
+    steam_id = str(steam_id).strip()
+    
+    if not steam_id or not steam_id.isdigit():
+        raise ValueError(f"❌ Invalid Steam ID: {steam_id}")
+
+    STEAM_API_URL = "http://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/"
+    
+    params = {
+        'steamid': steam_id,
+        'key': STEAM_API_KEY,
+        'format': 'json',
+        'include_appinfo': True
+    }
+    
+    try:
+        response = requests.get(STEAM_API_URL, params=params, timeout=10)
+        
+        if response.status_code == 400:
+            raise ValueError("❌ Error 400: Bad Request. Invalid Steam ID format.")
+            
+        if response.status_code == 403:
+            raise ValueError("❌ Error 403: API Key invalid or domain mismatch.")
+            
+        if response.status_code != 200:
+            raise ValueError(f"❌ Steam API Error: {response.status_code}")
+        
+        data = response.json()
+        games = data.get('response', {}).get('games', [])
+        
+        # If 0 games, it's OK - just means no recently played games
+        # This can happen if:
+        # 1. Profile is private (despite settings showing public)
+        # 2. User hasn't played any games
+        # 3. Recently played list is empty
+        
+        print(f"DEBUG: Fetched {len(games)} games for Steam ID {steam_id}")
+        return games
+        
+    except requests.exceptions.RequestException as e:
+        raise ValueError(f"❌ Network Error: {str(e)}")
+    except Exception as e:
+        raise ValueError(f"❌ Error: {str(e)}")
+
+    
+@login_required
+def sync_steam(request):
+    """
+    Handle Steam ID submission and sync
+    """
+    if request.method == 'POST':
+        form = SteamIDForm(request.POST, instance=request.user.profile)
+        
+        if form.is_valid():
+            profile = form.save()
+            
+            try:
+                games = fetch_steam_games(profile.steam_id)
+                
+                # Store games even if list is empty
+                for game in games:
+                    SteamGame.objects.update_or_create(
+                        user=request.user,
+                        appid=game['appid'],
+                        defaults={
+                            'name': game['name'],
+                            'playtime_2weeks': game.get('playtime_2weeks', 0),
+                            'playtime_forever': game.get('playtime_forever', 0),
+                            'img_icon_url': game.get('img_icon_url', ''),
+                            'img_logo_url': game.get('img_logo_url', ''),
+                        }
+                    )
+                profile.last_sync_time = timezone.now()
+                profile.save()
+                # Success message (even if 0 games)
+                if len(games) == 0:
+                    messages.warning(
+                        request,
+                        '⚠ Steam account connected but no recently played games found. '
+                        'This might mean your profile is private or you have no recently played games.'
+                    )
+                else:
+                    messages.success(
+                        request,
+                        f'✓ Steam account connected! Found {len(games)} games.'
+                    )
+                
+            except ValueError as e:
+                messages.error(request, str(e))
+                return redirect('content_sync')
+            except Exception as e:
+                messages.error(request, f'❌ Unexpected error: {str(e)}')
+                return redirect('content_sync')
+            
+            return redirect('content_sync')
+        
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    
+    return redirect('content_sync')
+
+@login_required(login_url='account_login')
+def edit_profile(request):
+    """Placeholder for edit profile - to be created later"""
+    messages.info(request, 'Edit profile page coming soon!')
+    return redirect('my_profile')
 
 
 @login_required

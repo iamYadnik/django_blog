@@ -1,0 +1,704 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Recently Played Games | The Super Blog{% endblock title %}
+
+{% block content %}
+<div class="container">
+  <div class="layout">
+    <!-- left layout -->
+    <div class="left">
+      <div class="page-top">
+        <div class="top flex">
+          <div class="page-name">
+            <a href="{% url "my_profile" %}" class="learn">
+              <span class="material-icons"> keyboard_return </span> Back to Profile
+            </a>
+            <h1>Recently Played Games</h1>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages/Alerts -->
+      {% if messages %}
+        <div class="alerts-container">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+              {{ message }}
+              <button type="button" class="close-alert">&times;</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Sync Section -->
+      <div class="sync-section mt-4">
+        <div class="sync-card">
+          <h3>Sync Your Steam Games</h3>
+          <p class="sync-desc">Connect your Steam account to see your recently played games.</p>
+          
+          {% if user.profile.steam_id %}
+            <div class="steam-connected">
+              <div class="connected-info">
+                <i class="fab fa-steam" style="font-size: 24px; color: #1b9fe1;"></i>
+                <div>
+                  <p class="steam-id">Steam ID: <strong>{{ user.profile.steam_id }}</strong></p>
+                  <small>Last synced: 
+                    {% if last_sync_time %}
+                      {{ last_sync_time|date:"M d, Y H:i" }}
+                    {% else %}
+                      Never
+                    {% endif %}
+                  </small>
+                </div>
+              </div>
+              <button type="button" class="btn btn-primary" onclick="showSyncModal()">
+                <i class="material-icons">refresh</i> Sync Again
+              </button>
+            </div>
+          {% else %}
+            <button type="button" class="btn btn-primary btn-lg" onclick="showSyncModal()">
+              <i class="fab fa-steam"></i> Connect Steam Account
+            </button>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Sync Modal -->
+      <div id="syncModal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <span class="close" onclick="closeSyncModal()">&times;</span>
+          
+          <h2>Connect Steam Account</h2>
+          
+          <div class="instructions mt-4">
+            <h4>📋 Instructions:</h4>
+            <ol>
+              <li>
+                <strong>Make Your Profile Public:</strong>
+                <ul>
+                  <li>Go to <a href="https://steamcommunity.com/my/edit/settings" target="_blank">Steam Community Settings</a></li>
+                  <li>Navigate to <strong>"Privacy Settings"</strong></li>
+                  <li>Set <strong>"Game details"</strong> to <strong>"Public"</strong> (or at least public enough to see recently played games)</li>
+                  <li>Click <strong>"Save Changes"</strong></li>
+                </ul>
+              </li>
+              <li>
+                <strong>Find Your Steam ID:</strong>
+                <ul>
+                  <li>Visit <a href="https://steamcommunity.com/my/profile" target="_blank">your Steam profile</a></li>
+                  <li>Look at the URL: <code>steamcommunity.com/profiles/YOUR_STEAM_ID</code></li>
+                  <li>Copy the long number (e.g., 76561197960434622)</li>
+                </ul>
+              </li>
+              <li>
+                <strong>Paste Your Steam ID below:</strong>
+              </li>
+            </ol>
+          </div>
+
+          <form method="POST" action="{% url 'sync_steam' %}" class="steam-form mt-4">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="steam_id">
+                <strong>Steam ID:</strong>
+                <span class="required">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="steam_id" 
+                name="steam_id" 
+                class="form-control" 
+                placeholder="e.g., 76561197960434622"
+                required
+              >
+              <small class="form-text">Your Steam ID is a long number found in your profile URL</small>
+            </div>
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                <i class="material-icons">check</i> Sync Games
+              </button>
+              <button type="button" class="btn btn-secondary" onclick="closeSyncModal()">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Games List -->
+      {% if recently_played_games %}
+        <div class="games-section mt-5">
+          <h3>Your Recently Played Games (Last 2 Weeks)</h3>
+          <p class="games-count">Total: <strong>{{ recently_played_games|length }}</strong> games</p>
+
+          <div class="games-grid">
+            {% for game in recently_played_games %}
+              <div class="game-card">
+                <div class="game-cover">
+                  {% if game.img_logo_url %}
+                    <img 
+                      src="http://media.steampowered.com/steamcommunity/public/images/apps/{{ game.appid }}/{{ game.img_logo_url }}.jpg" 
+                      alt="{{ game.name }}" 
+                      class="game-image"
+                      onerror="this.src='{% static 'images/no-game-image.png' %}'"
+                    >
+                  {% else %}
+                    <div class="game-image-placeholder">No Image</div>
+                  {% endif %}
+                </div>
+                
+                <div class="game-info">
+                  <h4 class="game-name">{{ game.name }}</h4>
+                  
+                  <div class="playtime-stats">
+                    <div class="playtime-item">
+                      <span class="label">Last 2 Weeks:</span>
+                      <span class="value">
+                        {% if game.playtime_2weeks %}
+                          {{ game.playtime_2weeks }} min
+                          <small>({{ game.playtime_2weeks }} hrs)</small>
+                        {% else %}
+                          0 min
+                        {% endif %}
+                      </span>
+                    </div>
+
+                    <div class="playtime-item">
+                      <span class="label">All Time:</span>
+                      <span class="value">
+                        {% if game.playtime_forever %}
+                          {{ game.playtime_forever }} min
+                          <small>({{ game.playtime_forever }} hrs)</small>
+                        {% else %}
+                          0 min
+                        {% endif %}
+                      </span>
+                    </div>
+                  </div>
+
+                  <a href="https://steamcommunity.com/app/{{ game.appid }}" target="_blank" class="btn btn-sm btn-outline">
+                    View on Steam
+                  </a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% elif user.profile.steam_id %}
+        <div class="no-games-message mt-5">
+          <i class="material-icons">videogame_asset</i>
+          <h3>No Games Found</h3>
+          <p>You haven't played any games in the last 2 weeks, or your profile is set to private.</p>
+          <p><small>Make sure your Steam profile and game details are set to public.</small></p>
+          <button type="button" class="btn btn-primary" onclick="showSyncModal()">
+            <i class="material-icons">refresh</i> Try Again
+          </button>
+        </div>
+      {% else %}
+        <div class="no-games-message mt-5">
+          <i class="material-icons">videogame_asset</i>
+          <h3>Connect Your Steam Account</h3>
+          <p>Click the button above to connect your Steam account and see your recently played games.</p>
+          <button type="button" class="btn btn-primary" onclick="showSyncModal()">
+            <i class="fab fa-steam"></i> Connect Steam Account
+          </button>
+        </div>
+      {% endif %}
+
+    </div>
+    <!-- left layout end -->
+
+    <!-- right layout -->
+    <div class="right">
+      <div class="block">
+        <h2 class="title2">Quick Info</h2>
+        <div class="info-items">
+          {% if user.profile.steam_id %}
+            <div class="info-item">
+              <div class="info-label">Steam ID Connected</div>
+              <div class="info-value">✓ Yes</div>
+            </div>
+            {% if recently_played_games %}
+              <div class="info-item">
+                <div class="info-label">Total Games</div>
+                <div class="info-value">{{ recently_played_games|length }}</div>
+              </div>
+            {% endif %}
+          {% else %}
+            <div class="info-item">
+              <div class="info-label">Steam ID Connected</div>
+              <div class="info-value">✗ No</div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="block">
+        <h2 class="title2">Help & Support</h2>
+        <div class="help-content">
+          <h4>Can't see your games?</h4>
+          <ul>
+            <li>Check if your Steam profile is <strong>public</strong></li>
+            <li>Verify your <strong>game details</strong> are public too</li>
+            <li>Make sure you <strong>played games in the last 2 weeks</strong></li>
+            <li>Try syncing again with the refresh button</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2 class="title2">Back to Profile</h2>
+        <a href="{% url 'my_profile' %}" class="btn btn-secondary btn-full">
+          <i class="material-icons">person</i> View Full Profile
+        </a>
+      </div>
+    </div>
+    <!-- right layout end -->
+  </div>
+</div>
+
+<style>
+  .sync-section {
+    margin-top: 30px;
+  }
+
+  .sync-card {
+    background: linear-gradient(135deg, #1b9fe1 0%, #0d7a99 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+  }
+
+  .sync-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+  }
+
+  .sync-desc {
+    margin: 0 0 20px 0;
+    opacity: 0.9;
+  }
+
+  .steam-connected {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 8px;
+  }
+
+  .connected-info {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+
+  .steam-id {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .btn-lg {
+    padding: 15px 30px;
+    font-size: 18px;
+    width: 100%;
+  }
+
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .close {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #999;
+  }
+
+  .close:hover {
+    color: #333;
+  }
+
+  .modal-content h2 {
+    margin-top: 0;
+    color: #333;
+  }
+
+  .instructions ol {
+    padding-left: 20px;
+    line-height: 1.8;
+  }
+
+  .instructions li {
+    margin-bottom: 15px;
+  }
+
+  .instructions a {
+    color: #1b9fe1;
+    text-decoration: none;
+  }
+
+  .instructions a:hover {
+    text-decoration: underline;
+  }
+
+  .instructions code {
+    background: #f5f5f5;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+  }
+
+  .steam-form {
+    margin-top: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .required {
+    color: #e74c3c;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: #1b9fe1;
+    box-shadow: 0 0 0 3px rgba(27, 159, 225, 0.1);
+  }
+
+  .form-text {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 12px;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .games-section {
+    margin-top: 50px;
+  }
+
+  .games-section h3 {
+    margin-bottom: 10px;
+    font-size: 24px;
+  }
+
+  .games-count {
+    color: #666;
+    margin-bottom: 20px;
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .game-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .game-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+  }
+
+  .game-cover {
+    height: 140px;
+    overflow: hidden;
+    background: #f0f0f0;
+  }
+
+  .game-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .game-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: #ddd;
+    color: #999;
+  }
+
+  .game-info {
+    padding: 15px;
+  }
+
+  .game-name {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    color: #333;
+    line-height: 1.4;
+  }
+
+  .playtime-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .playtime-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    background: #f8f9fa;
+    padding: 8px;
+    border-radius: 4px;
+  }
+
+  .playtime-item .label {
+    color: #666;
+    font-weight: 600;
+  }
+
+  .playtime-item .value {
+    color: #1b9fe1;
+    font-weight: 600;
+  }
+
+  .playtime-item small {
+    display: block;
+    color: #999;
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  .btn-outline {
+    background: white;
+    border: 1px solid #ddd;
+    color: #333;
+    width: 100%;
+    text-align: center;
+  }
+
+  .btn-outline:hover {
+    background: #f8f9fa;
+  }
+
+  .no-games-message {
+    text-align: center;
+    padding: 40px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #666;
+  }
+
+  .no-games-message .material-icons {
+    font-size: 64px;
+    color: #ddd;
+    margin-bottom: 20px;
+  }
+
+  .no-games-message h3 {
+    margin: 20px 0 10px 0;
+    color: #333;
+  }
+
+  .alerts-container {
+    margin-bottom: 20px;
+  }
+
+  .alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  .alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  .close-alert {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: inherit;
+    opacity: 0.7;
+  }
+
+  .close-alert:hover {
+    opacity: 1;
+  }
+
+  .info-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .info-item {
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+  }
+
+  .info-label {
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .info-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1b9fe1;
+  }
+
+  .help-content {
+    font-size: 13px;
+  }
+
+  .help-content h4 {
+    margin-top: 0;
+    color: #333;
+  }
+
+  .help-content ul {
+    padding-left: 20px;
+    margin: 10px 0;
+  }
+
+  .help-content li {
+    margin-bottom: 8px;
+    color: #666;
+  }
+
+  .btn-full {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .modal-content {
+      margin: 20px;
+      max-width: 90%;
+    }
+
+    .steam-connected {
+      flex-direction: column;
+      gap: 15px;
+      text-align: center;
+    }
+
+    .games-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .profile-card {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .avatar-img {
+      width: 100px;
+      height: 100px;
+    }
+  }
+</style>
+
+<script>
+  function showSyncModal() {
+    document.getElementById('syncModal').style.display = 'flex';
+  }
+
+  function closeSyncModal() {
+    document.getElementById('syncModal').style.display = 'none';
+  }
+
+  window.onclick = function(event) {
+    const modal = document.getElementById('syncModal');
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  }
+
+  // Auto-close alerts after 5 seconds
+  document.querySelectorAll('.alert').forEach(alert => {
+    setTimeout(() => {
+      alert.style.transition = 'opacity 0.3s ease';
+      alert.style.opacity = '0';
+      setTimeout(() => alert.remove(), 300);
+    }, 5000);
+  });
+</script>
+{% endblock content %}
