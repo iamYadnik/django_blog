@@ -6,7 +6,7 @@
     <main>
       <div class="container">
         <div class="page-name">
-          <a href="{% url "home" %}" class="learn">
+          <a href="{% url "app:home" %}" class="learn">
             <span class="material-icons"> keyboard_return </span> Go back
           </a>
           <h1>Sign Up</h1>
@@ -16,7 +16,7 @@
             {% csrf_token %}
           <center>
             <div class="logo f-logo">
-              <i class="fa-brands fa-blogger"></i>
+              <i class="fa-solid fa-compact-disc"></i>
             </div>
                 {% if form.non_field_errors %}
                     {% for error in form.non_field_errors %}
@@ -84,11 +84,11 @@
                 </div>
                 {% endif %}
               </div>
-              <button class="btn btn-primary rounded">
+              <button class="btn btn-secondary rounded">
                 SIGN UP <span class="material-icons"> arrow_right_alt </span>
               </button>
               <center>
-                <p>Already have an account? <a href="login.html">Login</a></p>
+                <p>Already have an account? <a href="{% url "login" %}">Login</a></p>
               </center>
             </div>
           </center>

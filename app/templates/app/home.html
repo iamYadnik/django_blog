@@ -6,7 +6,7 @@
         <center>
           <div class="search-bar">
             <input type="text" placeholder="Search" />
-            <a href="{% url 'search' %}" class="animated-search" onclick="searchbar()">
+            <a href="{% url 'app:search' %}" class="animated-search" onclick="searchbar()">
               <i class="uil uil-search"></i>
             </a>
           </div>
@@ -33,7 +33,7 @@
             <form method="POST">
               {% csrf_token %}
               {{subscribe_form}}
-              <button class="btn btn-primary">Subscribe</button>
+              <button class="btn btn-secondary">Subscribe</button>
             </form>
             {% endif %}
             {% if subscribe_successful %}
@@ -76,7 +76,7 @@
         <div class="grid-3">
             {% for post in top_posts %}
           <!-- card -->
-          <a href="{% url 'post_page' post.slug %}">
+          <a href="{% url 'app:post_page' post.slug %}">
             <div class="card">
               <div class="post-img">
                 {% if post.image %}<img src="{{post.image.url}}" alt="{{ post.title }}" />{% endif %}
@@ -103,7 +103,7 @@
           {% endfor %}
         </div>
         <center>
-          <a href="{% url "all_post" %}"><button class="btn btn-primary rounded view">
+          <a href="{% url "app:all_post" %}"><button class="btn btn-primary rounded view">
             View more <span class="material-icons"> trending_flat </span>
           </button></a>
         </center>
@@ -115,7 +115,7 @@
         <div class="grid-3">
             {% for post in recent_posts %}
           <!-- card -->
-          <a href="{% url 'post_page' post.slug %}">
+          <a href="{% url 'app:post_page' post.slug %}">
             <div class="card">
               <div class="post-img">
                 {% if post.image %}<img src="{{post.image.url}}" alt="{{ post.title }}" />{% endif %}
@@ -142,7 +142,7 @@
           {% endfor %}
         </div>
         <center>
-          <a href="{% url "all_post" %}"><button class="btn btn-primary rounded view">
+          <a href="{% url "app:all_post" %}"><button class="btn btn-primary rounded view">
             View more <span class="material-icons"> trending_flat </span>
           </button></a>
         </center>

@@ -12,7 +12,7 @@
     <div class="page-top">
       <div class="top flex">
         <div class="page-name">
-          <a href="{% url "home" %}" class="learn">
+          <a href="{% url "app:home" %}" class="learn">
             <span class="material-icons"> keyboard_return </span> Go back
           </a>
           <h1>All Posts</h1>
@@ -26,7 +26,7 @@
     <div class="blog-tags">
     {% for post in posts %}
     <p class="tag">
-      <a style="color: white;" href="{% url 'post_page' post.slug %}">{{post.title}}</a>
+      <a style="color: black;" href="{% url 'app:post_page' post.slug %}">{{post.title}}</a>
     </p>
     {% endfor %}
    

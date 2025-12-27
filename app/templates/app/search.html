@@ -8,7 +8,7 @@
         <div class="page-top">
           <div class="top flex">
             <div class="page-name">
-              <a href="{% url "home" %}" class="learn">
+              <a href="{% url "app:home" %}" class="learn">
                 <span class="material-icons"> keyboard_return </span> Go back
               </a>
               <h1>Search</h1>
@@ -28,7 +28,7 @@
         <div class="grid">
             {% for post in results %}
           <!-- card -->
-          <a href="{% url 'post_page' post.slug %}">
+          <a href="{% url 'app:post_page' post.slug %}">
             <div class="card">
               <div class="post-img">
                 {% if post.image %}

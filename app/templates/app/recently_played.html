@@ -11,7 +11,7 @@
       <div class="page-top">
         <div class="top flex">
           <div class="page-name">
-            <a href="{% url "my_profile" %}" class="learn">
+            <a href="{% url "app:my_profile" %}" class="learn">
               <span class="material-icons"> keyboard_return </span> Back to Profile
             </a>
             <h1>Recently Played Games</h1>
@@ -97,7 +97,7 @@
             </ol>
           </div>
 
-          <form method="POST" action="{% url 'sync_steam' %}" class="steam-form mt-4">
+          <form method="POST" action="{% url 'app:sync_steam' %}" class="steam-form mt-4">
             {% csrf_token %}
             <div class="form-group">
               <label for="steam_id">
@@ -256,7 +256,7 @@
 
       <div class="block">
         <h2 class="title2">Back to Profile</h2>
-        <a href="{% url 'my_profile' %}" class="btn btn-secondary btn-full">
+        <a href="{% url 'app:my_profile' %}" class="btn btn-secondary btn-full">
           <i class="material-icons">person</i> View Full Profile
         </a>
       </div>

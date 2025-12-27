@@ -1,0 +1,433 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'portfolio/style.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v2.1.6/css/unicons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+      integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
+      rel="stylesheet"
+    />
+
+    <title>{% block title %}Portfolio{% endblock title %}</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'><tspan>👨‍💻</tspan></text></svg>">
+
+    <style>
+      :root {
+        /* Light Red Theme */
+        --primary-color: #d63447;
+        --primary-light: #f8d7da;
+        --primary-lighter: #fce4ec;
+        --primary-dark: #a02830;
+        --secondary-color: #6c757d;
+        --text-dark: #2c3e50;
+        --text-light: #f8f9fa;
+        --border-color: #ffe0e6;
+        --bg-light: #fff5f7;
+        --bg-lighter: #fffbfc;
+        --shadow: 0 2px 8px rgba(214, 52, 71, 0.1);
+        --shadow-lg: 0 8px 16px rgba(214, 52, 71, 0.15);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        color: var(--text-dark);
+        background-color: var(--bg-lighter);
+        line-height: 1.6;
+      }
+
+      /* Container */
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      .container-fluid {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* Header */
+      header {
+        background: white;
+        box-shadow: var(--shadow);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      header .container {
+        padding: 15px 20px;
+      }
+
+      .logo {
+        font-size: 28px;
+        font-weight: bold;
+        color: var(--primary-color);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .logo:hover {
+        color: var(--primary-dark);
+        transition: color 0.3s ease;
+      }
+
+      .logo i {
+        font-size: 32px;
+      }
+
+      /* Navigation Links */
+      .links {
+        display: flex;
+        gap: 30px;
+        align-items: center;
+      }
+
+      .links a {
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: 500;
+        position: relative;
+        transition: color 0.3s ease;
+      }
+
+      .links a:hover {
+        color: var(--primary-color);
+      }
+
+      .links a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -5px;
+        left: 0;
+        background-color: var(--primary-color);
+        transition: width 0.3s ease;
+      }
+
+      .links a:hover::after {
+        width: 100%;
+      }
+
+      /* Action Buttons */
+      .action-btn {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .btn {
+        padding: 8px 20px;
+        border: none;
+        border-radius: 5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .btn-primary {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+      }
+
+      .btn-secondary {
+        background: var(--primary-light);
+        color: var(--primary-color);
+        border: 1px solid var(--border-color);
+      }
+
+      .btn-secondary:hover {
+        background: var(--primary-lighter);
+        border-color: var(--primary-color);
+      }
+
+      .menu {
+        display: none;
+        cursor: pointer;
+        font-size: 24px;
+        color: var(--primary-color);
+      }
+
+      /* Main Content */
+      main {
+        min-height: calc(100vh - 200px);
+        padding: 40px 0;
+      }
+
+      /* Footer */
+      footer {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 50px 0 20px;
+        margin-top: 60px;
+      }
+
+      footer .container {
+        padding: 0 20px;
+      }
+
+      .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+        margin-bottom: 30px;
+      }
+
+      .f-logo {
+        font-size: 40px;
+        display: flex;
+        align-items: center;
+      }
+
+      .f-logo i {
+        color: var(--primary-light);
+      }
+
+      footer h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+        font-weight: 600;
+      }
+
+      .q-link {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      footer a {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      footer a:hover {
+        color: white;
+        padding-left: 5px;
+      }
+
+      .newsletter {
+        display: flex;
+        gap: 8px;
+      }
+
+      .newsletter input {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transition: background 0.3s ease;
+      }
+
+      .newsletter input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .newsletter input:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .newsletter button {
+        padding: 10px 20px;
+      }
+
+      footer p {
+        text-align: center;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 14px;
+        opacity: 0.8;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .links {
+          display: none;
+        }
+
+        .menu {
+          display: block;
+        }
+
+        .action-btn {
+          flex-wrap: wrap;
+        }
+
+        .grid-4 {
+          grid-template-columns: 1fr;
+          gap: 30px;
+        }
+
+        header .container {
+          flex-wrap: wrap;
+        }
+
+        main {
+          padding: 20px 0;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .logo {
+          font-size: 20px;
+        }
+
+        .btn {
+          padding: 6px 12px;
+          font-size: 12px;
+        }
+
+        footer {
+          padding: 30px 0 15px;
+        }
+
+        .grid-4 {
+          gap: 20px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="container container-fluid">
+        <a class="logo" href="{% url 'portfolio:home' %}">
+          <i class="fa-solid fa-code"></i>
+          <span>Hi, Welcome </span>
+        </a>
+        
+        <div class="links">
+          {% comment %} <a href="{% url 'portfolio:home' %}">Home</a> {% endcomment %}
+          {% comment %} <a href="{% url 'portfolio:projects' %}">Projects</a> {% endcomment %}
+          {% comment %} <a href="{% url 'portfolio:about' %}">About</a> {% endcomment %}
+          <a href="{% url 'app:home' %}">View my demo project</a>
+        </div>
+
+        <div class="action-btn">
+          {% comment %} <a href="{% url 'app:home' %}">
+            <button class="btn btn-primary">Visit Blog</button>
+          </a> {% endcomment %}
+          <i class="uil uil-align-center-alt menu" onclick="menu()"></i>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      {% block content %}
+      {% endblock content %}
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="grid-4">
+          <div>
+            <div class="logo f-logo">
+              <i class="fa-solid fa-code"></i>
+            </div>
+            <p style="margin-top: 10px; opacity: 0.9;">Backend developer passionate about Python, Django, and open source development.</p>
+          </div>
+
+          <div>
+            <h2>Portfolio</h2>
+            <div class="q-link">
+              <a href="{% url 'portfolio:home' %}">Home</a>
+              {% comment %} <a href="{% url 'portfolio:projects' %}">Projects</a> {% endcomment %}
+              {% comment %} <a href="{% url 'portfolio:about' %}">About Me</a> {% endcomment %}
+            </div>
+          </div>
+
+          <div>
+            <h2>Content</h2>
+            <div class="q-link">
+              <a href="{% url 'app:home' %}">Blog Home</a>
+              <a href="{% url 'app:all_post' %}">All Posts</a>
+              <a href="{% url 'app:about' %}">Blog About</a>
+            </div>
+          </div>
+
+          <div>
+            <h2>Connect</h2>
+            <div class="q-link">
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+                <i class="fa-brands fa-github"></i> GitHub
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+                <i class="fa-brands fa-linkedin-in"></i> LinkedIn
+              </a>
+              {% comment %} <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                <i class="fa-brands fa-twitter"></i> Twitter
+              </a> {% endcomment %}
+            </div>
+          </div>
+        </div>
+
+        <p>&copy; 2025 Yadnik's Portfolio. All rights reserved. Built with Django & ❤️</p>
+      </div>
+    </footer>
+
+    <script>
+      function menu() {
+        const links = document.querySelector('.links');
+        const menu = document.querySelector('.menu');
+        
+        if (links.style.display === 'flex') {
+          links.style.display = 'none';
+        } else {
+          links.style.display = 'flex';
+          links.style.position = 'absolute';
+          links.style.top = '60px';
+          links.style.left = '0';
+          links.style.width = '100%';
+          links.style.background = 'white';
+          links.style.flexDirection = 'column';
+          links.style.padding = '20px';
+          links.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
+        }
+      }
+    </script>
+  </body>
+</html>

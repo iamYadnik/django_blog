@@ -198,19 +198,19 @@ def sync_steam(request):
                 
             except ValueError as e:
                 messages.error(request, str(e))
-                return redirect('content_sync')
+                return redirect('app:content_sync')
             except Exception as e:
                 messages.error(request, f'❌ Unexpected error: {str(e)}')
-                return redirect('content_sync')
+                return redirect('app:content_sync')
             
-            return redirect('content_sync')
+            return redirect('app:content_sync')
         
         else:
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'{field}: {error}')
     
-    return redirect('content_sync')
+    return redirect('app:content_sync')
 
 @login_required(login_url='account_login')
 def edit_profile(request):
@@ -259,7 +259,7 @@ def create_post(request):
             form.save_m2m()  # Save many-to-many relationships
             
             # Redirect to the newly created post
-            return redirect('post_page', slug=post.slug)
+            return redirect('app:post_page', slug=post.slug)
     
     else:
         # GET request - show empty form
@@ -285,7 +285,7 @@ def all_bookmarked_post(request):
 
 
 def like_post(request, slug):
-    post = get_object_or_404(Post, id=request.POST.get('post_id'))
+    post = get_object_or_404(Post, slug=slug)
     
     
     if post.likes.filter(id=request.user.id).exists():
@@ -294,10 +294,10 @@ def like_post(request, slug):
     else:
         post.likes.add(request.user)
         post.save()
-    return HttpResponseRedirect(reverse('post_page', args=[str(slug)]))
+    return HttpResponseRedirect(reverse('app:post_page', args=[str(slug)]))
 
 def bookmark_post(request, slug):
-    post = get_object_or_404(Post, id=request.POST.get('post_id'))
+    post = get_object_or_404(Post, slug=slug)
     
     
     if post.bookmarks.filter(id=request.user.id).exists():
@@ -306,7 +306,7 @@ def bookmark_post(request, slug):
     else:
         post.bookmarks.add(request.user)
         post.save()
-    return HttpResponseRedirect(reverse('post_page', args=[str(slug)]))
+    return HttpResponseRedirect(reverse('app:post_page', args=[str(slug)]))
 
 def register_user(request):
     form = NewUserForm()
@@ -315,7 +315,7 @@ def register_user(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('/')
+            return redirect('app:home')
     context = {'form': form}
     return render(request, 'registration/registration.html', context)
 
@@ -391,7 +391,7 @@ def post_page(request, slug):
 
     if request.POST:
         if not request.user.is_authenticated:  # ✅ NEW
-            return redirect('account_login')
+            return redirect('app:account_login')
     
         comment_form = Commentforms(request.POST)
         if comment_form.is_valid():
@@ -417,7 +417,7 @@ def post_page(request, slug):
                 comment.email = request.user.email  # ✅ AUTO-FILL
                 comment.save()
         
-            return HttpResponseRedirect(reverse('post_page', args=[slug]))
+            return HttpResponseRedirect(reverse('app:post_page', args=[slug]))
 
             
     if post.view_count == 0:  

@@ -10,7 +10,7 @@
       <div class="page-top">
         <div class="top flex">
           <div class="page-name">
-            <a href="{% url "home" %}" class="learn">
+            <a href="{% url "app:home" %}" class="learn">
               <span class="material-icons"> keyboard_return </span> Go back
             </a>
             <h1>Blog</h1>
@@ -34,7 +34,7 @@
             </div>
             <div class="track">
               {% if user.is_authenticated %}
-              <form action="{% url 'bookmark_post' post.slug %}" method="POST">
+              <form action="{% url 'app:bookmark_post' post.slug %}" method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="post_id" value="{{post.id}}">
                 {% if is_bookmarked %}
@@ -80,7 +80,7 @@
                 <div class="reactions">
                   <div class="likes">
                     {% if user.is_authenticated %}
-                    <form action="{% url 'like_post' post.slug %}" method="post">
+                    <form action="{% url 'app:like_post' post.slug %}" method="post">
                       {% csrf_token %}
                       <input type="hidden" name="post_id" value="{{post.id}}">
                       {% if is_liked %}
@@ -179,7 +179,7 @@
                   <label><strong>Commenting as: {{ user.first_name|default:user.username }}</strong></label>
                   {{ form.content }}
                   <input type="hidden" name="post_id" value="{{ post.id }}">
-                  <button type="submit" class="btn btn-primary mt-3">Post comment</button>
+                  <button type="submit" class="btn btn-secondary mt-3">Post comment</button>
                 </form>
                 {% else %}
                 <div class="alert alert-info">
@@ -207,7 +207,7 @@
             <h3>
               {{post_item.title}}
             </h3>
-            <a class="learn" href="{% url 'post_page' post_item.slug %}"
+            <a class="learn" href="{% url 'app:post_page' post_item.slug %}"
               >Learn more
               <span class="material-icons"> trending_flat </span></a
             >
@@ -251,7 +251,7 @@
         {% for author in top_authors %}
         <!-- card -->
           {% if author.profile.slug %}
-            <a href="{% url "author_page" author.profile.slug %}">
+            <a href="{% url "app:author_page" author.profile.slug %}">
           {% endif %}
           {% comment %} <a href="{% url "author_page" author.profile.slug %}"> {% endcomment %}
           <div class="card">

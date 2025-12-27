@@ -11,7 +11,7 @@
       <div class="page-top">
         <div class="top flex">
           <div class="page-name">
-            <a href="{% url "home" %}" class="learn">
+            <a href="{% url "app:home" %}" class="learn">
               <span class="material-icons"> keyboard_return </span> Go back
             </a>
             <h1>My Profile</h1>
@@ -36,10 +36,10 @@
               <p class="bio">{{ user.profile.bio }}</p>
             {% endif %}
             <div class="profile-actions">
-              <a href="{% url 'edit_profile' %}" class="btn btn-primary btn-sm">
+              <a href="#" class="btn btn-primary btn-sm">
                 <i class="material-icons">edit</i> Edit Profile
               </a>
-              <a href="{% url 'content_sync' %}" class="btn btn-secondary btn-sm">
+              <a href="{% url 'app:content_sync' %}" class="btn btn-secondary btn-sm">
                 <i class="material-icons">cloud_sync</i> Content Sync
               </a>
             </div>
@@ -50,16 +50,16 @@
       <!-- Tabs Navigation -->
       <div class="tabs-navigation mt-5">
         <div class="tabs-container">
-          <a href="{% url 'your_post' %}" class="tab-link">
+          <a href="{% url 'app:your_post' %}" class="tab-link">
             <i class="material-icons">article</i> My Posts
           </a>
-          <a href="{% url 'all_bookmarked_post' %}" class="tab-link">
+          <a href="{% url 'app:all_bookmarked_post' %}" class="tab-link">
             <i class="material-icons">bookmark</i> Bookmarked Posts
           </a>
-          <a href="{% url 'liked_post' %}" class="tab-link">
+          <a href="{% url 'app:liked_post' %}" class="tab-link">
             <i class="material-icons">favorite</i> Liked Posts
           </a>
-          <a href="{% url 'recently_played' %}" class="tab-link active">
+          <a href="{% url 'app:recently_played' %}" class="tab-link active">
             <i class="fab fa-steam"></i> Recently Played Games
           </a>
         </div>
@@ -97,16 +97,16 @@
       <div class="block">
         <h2 class="title2">Quick Links</h2>
             <div class="quick-links">
-                <a href="{% url 'create_post' %}" class="quick-link-btn">
+                <a href="{% url 'app:create_post' %}" class="quick-link-btn">
                     <i class="material-icons">add_circle</i> Create Post
                 </a>
-                <a href="{% url 'your_post' %}" class="quick-link-btn">
+                <a href="{% url 'app:your_post' %}" class="quick-link-btn">
                     <i class="material-icons">list</i> View Posts
                 </a>
-                <a href="{% url 'content_sync' %}" class="quick-link-btn">
+                <a href="{% url 'app:content_sync' %}" class="quick-link-btn">
                     <i class="material-icons">cloud_sync</i> Content Sync
                 </a>
-                <a href="{% url 'edit_profile' %}" class="quick-link-btn">
+                <a href="#" class="quick-link-btn">
                     <i class="material-icons">settings</i> Settings
                 </a>
             </div>

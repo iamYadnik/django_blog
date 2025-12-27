@@ -11,7 +11,7 @@
       <div class="page-top">
         <div class="top flex">
           <div class="page-name">
-            <a href="{% url "my_profile" %}" class="learn">
+            <a href="{% url "app:my_profile" %}" class="learn">
               <span class="material-icons"> keyboard_return </span> Back to Profile
             </a>
             <h1>Content Sync</h1>
@@ -63,7 +63,7 @@
                   </small>
                 </p>
                 <div class="resync-form">
-                  <form method="POST" action="{% url 'sync_steam' %}" style="flex: 1;">
+                  <form method="POST" action="{% url 'app:sync_steam' %}" style="flex: 1;">
                     {% csrf_token %}
                     <input type="hidden" name="steam_id" value="{{ user.profile.steam_id }}">
                     <button type="submit" class="btn btn-primary btn-sm">
@@ -274,7 +274,7 @@
       </div>
     {% endif %}
 
-    <form method="POST" action="{% url 'sync_steam' %}" class="steam-form mt-4">
+    <form method="POST" action="{% url 'app:sync_steam' %}" class="steam-form mt-4">
       {% csrf_token %}
       <div class="form-group">
         <label for="steam_id_input">

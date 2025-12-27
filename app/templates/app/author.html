@@ -12,7 +12,7 @@
             <div class="page-top">
               <div class="top flex">
                 <div class="page-name">
-                  <a href="{% url "home" %}" class="learn">
+                  <a href="{% url "app:home" %}" class="learn">
                     <span class="material-icons"> keyboard_return </span> Go
                     back
                   </a>
@@ -35,7 +35,7 @@
                 <div class="grid-2 blog">
                     {% for post in top_posts %}
                   <!-- card -->
-                  <a href="{% url 'post_page' post.slug %}">
+                  <a href="{% url 'app:post_page' post.slug %}">
                     <div class="card">
                       <div class="post-img">
                         {% if post.image %}
@@ -53,7 +53,7 @@
                         </h3>
                         <div class="author">
                           <div class="profile-pic">
-                            <img src="{{post.author.profile.avatar.url}}" alt="" />
+                            {% if post_item.image %}<img src="{{post_item.image.url}}" alt="{{ post_item.title }}" />{% endif %}
                           </div>
                           <div class="details">
                             <p>{{ post.author.first_name }}</p>
@@ -74,7 +74,7 @@
                 <div class="grid-3 blog-grid">
                     {% for post in top_posts %}
                   <!-- card -->
-                  <a href="{% url 'post_page' post.slug %}">
+                  <a href="{% url 'app:post_page' post.slug %}">
                     <div class="card">
                       <div class="post-img">
                         {% if post.image %}
@@ -92,7 +92,7 @@
                         </h3>
                         <div class="author">
                           <div class="profile-pic">
-                            <img src="{{ post.author.profile.avatar.url }}" alt="" />
+                            {% if post_item.image %}<img src="{{post_item.image.url}}" alt="{{ post_item.title }}" />{% endif %}
                           </div>
                           <div class="details">
                             <p>{{ post.author.first_name }}</p>
@@ -224,7 +224,7 @@
                   <h3>
                     {{ post.title }}
                   </h3>
-                  <a class="learn" href="{% url 'post_page' post.slug %}"
+                  <a class="learn" href="{% url 'app:post_page' post.slug %}"
                     >Learn more
                     <span class="material-icons"> trending_flat </span></a
                   >

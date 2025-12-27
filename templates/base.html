@@ -24,18 +24,19 @@
     />
 
     <title>{% block title %}Blog{% endblock title %}</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'><tspan>💿</tspan></text></svg>">
   </head>
   <body>
     <header>
       <div class="container container-fluid">
-        <a class="logo" href="{% url "home" %}">
-          <i class="fa-brands fa-blogger"></i>
+        <a class="logo" href="{% url 'app:home' %}">
+          <i class="fa-solid fa-compact-disc"></i>
         </a>
         <div class="links">
-          <a href="{% url "home" %}">Home</a>
+          <a href="{% url 'app:home' %}">Home</a>
           
           {% if user.is_authenticated %}
-            <a href="{% url "all_post" %}">All Posts</a>
+            <a href="{% url "app:all_post" %}">All Posts</a>
           {% else %}
             <a href="{% url "login" %}">All Posts</a>
           {% endif %}
@@ -51,14 +52,15 @@
             <a href="{% url "login" %}">Bookmarks</a>
           {% endif %} {% endcomment %}
           {% if user.is_authenticated %}
-            <a href="{% url "create_post" %}">Create Post</a>
+            <a href="{% url "app:create_post" %}">Create Post</a>
           {% else %}
             <a href="{% url "login" %}">Create Post</a>
           {% endif %}
           {% if user.is_authenticated %}
-            <a href="{% url "my_profile" %}">My profile</a>
+            <a href="{% url "app:my_profile" %}">My profile</a>
           {% endif %}
-          <a href="{% url "about" %}">About</a>
+          <a href="{% url "app:about" %}">About</a>
+          <a href="{% url 'portfolio:home' %}">Go back to portfolio</a>
         </div>
         <div class="action-btn">
           {% if user.is_authenticated %}
@@ -71,11 +73,12 @@
             <button class="btn btn-secondary">Login</button>
           </a>
 
-          <a href="{% url "register" %}">
-            <button class="btn btn-primary">Sign Up</button>
+          <a href="{% url "app:register" %}">
+            <button class="btn btn-secondary">Sign Up</button>
           </a>
           <i class="uil uil-align-center-alt menu" onclick="menu()"></i>
           {% endif %}
+          
         </div>
       </div>
     </header>
@@ -87,14 +90,14 @@
       <div class="container">
         <div class="grid-4">
           <div class="logo f-logo">
-            <i class="fa-brands fa-blogger"></i>
+            <i class="fa-solid fa-compact-disc"></i>
           </div>
           <div class="link">
             <h2>Quick link</h2>
             <div class="q-link">
-              <a href="{% url "home" %}">Home</a>
-              <a href="{% url "about" %}">About</a>
-              <a href="{% url "all_post" %}">All posts</a>
+              <a href="{% url 'app:home' %}">Home</a>
+              <a href="{% url "app:about" %}">About</a>
+              <a href="{% url "app:all_post" %}">All posts</a>
             </div>
           </div>
           <div class="link">
@@ -102,8 +105,8 @@
             <h2>Your favourites</h2>
             <div class="q-link">
               
-                <a href="{% url "all_bookmarked_post" %}">Bookmarks</a>
-                <a href="{% url "liked_post" %}">Liked Posts</a>
+                <a href="{% url "app:all_bookmarked_post" %}">Bookmarks</a>
+                <a href="{% url "app:liked_post" %}">Liked Posts</a>
                 
                 
             </div>
@@ -112,7 +115,7 @@
             <div class="q-link">
               
                 <a href="{% url "login" %}">Login</a>
-                <a href="{% url "register" %}">Liked Posts</a>
+                <a href="{% url "app:register" %}">Liked Posts</a>
                 
               
             </div>

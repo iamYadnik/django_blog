@@ -3,6 +3,7 @@
 from django.urls import path
 from . import views
 
+app_name = 'app'
 urlpatterns = [
     path('post/<str:slug>/', views.post_page, name='post_page'),
     path('tag/<str:slug>/', views.tag_page, name='tag_page'),

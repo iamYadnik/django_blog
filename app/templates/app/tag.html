@@ -11,7 +11,7 @@
             <div class="page-top">
               <div class="top flex">
                 <div class="page-name">
-                  <a href="{% url "home" %}" class="learn">
+                  <a href="{% url "app:home" %}" class="learn">
                     <span class="material-icons"> keyboard_return </span> Go
                     back
                   </a>
@@ -34,7 +34,7 @@
                 <div class="grid-2 blog">
                   <!-- card -->
                    {% for post in top_posts %}
-                  <a href="{% url 'post_page' post.slug %}">
+                  <a href="{% url 'app:post_page' post.slug %}">
                     <div class="card">
                       <div class="post-img">
                         {% if post.image %}
@@ -74,7 +74,7 @@
                 <div class="grid-3 blog-grid">
                     {% for post in recent_posts %}
                   <!-- card -->
-                  <a href="{% url 'post_page' post.slug %}">
+                  <a href="{% url 'app:post_page' post.slug %}">
                     <div class="card">
                       <div class="post-img">
                         

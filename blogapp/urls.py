@@ -22,10 +22,11 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    path('', include('portfolio.urls')),
     path('accounts/logout/', auth_views.LogoutView.as_view(
         template_name='logged_out.html'
     ), name='logout'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('admin/', admin.site.urls),
-    path('',include('app.urls'))
+    path('blog/', include('app.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
